@@ -3,6 +3,8 @@ import { faker } from "@faker-js/faker";
 import { createHash } from "../utils/bcrypt.js";
 import userModel from "../models/user.js";
 import petModel from "../models/pet.js";
+import createCustomError from "../errors/customError.js";
+import errorDictionary from "../errors/errorsDictionary.js";
 
 
 const mocksRouter = Router()
@@ -26,7 +28,12 @@ mocksRouter.get('/mockingpets', async (req, res) => {
         res.status(200).json({ message: "Mascotas generadas correctamente", payload: pets })
 
     } catch (e) {
-        res.status(500).send(e)
+        // Si hay un error en la generación de una mascota, usamos el diccionario de errores
+        const customError = createCustomError(
+            errorDictionary.PET_CREATION_ERROR.code,
+            errorDictionary.PET_CREATION_ERROR.message
+        );
+        return res.status(500).json({ message: customError.message, error: customError });
     }
 })
 
@@ -68,41 +75,62 @@ mocksRouter.post('/generateData', async (req, res) => {
         const createdUsers = [];
         const createdPets = [];
         for (let i = 0; i < users; i++) {
-            const newUser = new userModel({
-                first_name: faker.person.firstName(),
-                last_name: faker.person.lastName(),
-                email: faker.internet.email(),
-                password: createHash("coder123"),
-                age: faker.number.int({ min: 18, max: 100 }),
-                rol: Math.random() < 0.90 ? "Usuario" : "Admin",
-                pets: []
-            });
-            const savedUser = await newUser.save();
-            createdUsers.push(savedUser);
+            try {
+                const newUser = new userModel({
+                    first_name: faker.person.firstName(),
+                    last_name: faker.person.lastName(),
+                    email: faker.internet.email(),
+                    password: createHash("coder123"),
+                    age: faker.number.int({ min: 18, max: 100 }),
+                    rol: Math.random() < 0.90 ? "Usuario" : "Admin",
+                    pets: []
+                });
+                const savedUser = await newUser.save();
+                createdUsers.push(savedUser);
+            } catch (error) {
+                const customError = createCustomError(
+                    errorDictionary.USER_CREATION_ERROR.code,
+                    errorDictionary.USER_CREATION_ERROR.message
+                );
+                return res.status(500).json({ message: customError.message, error: customError });
+            }
         }
         for (let i = 0; i < pets; i++) {
-            const newPet = new petModel({
-                name: faker.person.firstName(),
-                species: faker.animal.type(),
-                age: faker.number.int({ min: 1, max: 15 }),
-                adopted: false,
-                owner: null
-            });
-            const savedPet = await newPet.save();
-            createdPets.push(savedPet);
+            try {
+                const newPet = new petModel({
+                    name: faker.person.firstName(),
+                    species: faker.animal.type(),
+                    age: faker.number.int({ min: 1, max: 15 }),
+                    adopted: false,
+                    owner: null
+                });
+                const savedPet = await newPet.save();
+                createdPets.push(savedPet);
+            } catch (error) {
+                const customError = createCustomError(
+                    errorDictionary.PET_CREATION_ERROR.code,
+                    errorDictionary.PET_CREATION_ERROR.message
+                );
+                return res.status(500).json({ message: customError.message, error: customError });
+            }
         }
-
         res.status(201).json({
             message: 'Datos generados y guardados correctamente',
             users: createdUsers,
             pets: createdPets
-        });
+        })
 
     } catch (e) {
-        console.error("Error completo:", e); 
-        res.status(500).json({ message: "Hubo un error al generar los datos", error: e });
+        const customError = createCustomError(
+            errorDictionary.UNKNOWN_ERROR.code,
+            errorDictionary.UNKNOWN_ERROR.message
+        );
+        res.status(500).json({ message: "Hubo un error al generar los datos", error: customError });
     }
 })
+
+
+// Endpoints GET para leer desde la base de datos
 
 mocksRouter.get('/users', async (req, res) => {
     try {
@@ -112,8 +140,6 @@ mocksRouter.get('/users', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener los usuarios', error: e.message });
     }
 });
-
-// Endpoints GET para leer desde la base de datos
 
 mocksRouter.get('/pets', async (req, res) => {
     try {
