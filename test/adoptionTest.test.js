@@ -54,4 +54,48 @@ describe('Tests de endpoints adopciones', () => {
         expect(res.status).to.equal(200);
         expect(res.body.payload._id).to.equal(adoptionId);
     });
+    
+        // CASOS DE ERROR
+  it('Retorna 404 si el usuario no existe al crear adopción', async () => {
+    const fakeUserId = '615f1b2e8a0a5c0012345678'; // ID válido pero no existe
+    const res = await request(app)
+      .post(`/api/adoptions/${fakeUserId}/${petId}`)
+      .send();
+
+    expect(res.status).to.equal(404);
+    expect(res.body.message).to.equal('Usuario no encontrado');
+  });
+
+  it('Retorna 404 si la mascota no existe al crear adopción', async () => {
+    const fakePetId = '615f1b2e8a0a5c0012345679'; // ID válido pero no existe
+    const res = await request(app)
+      .post(`/api/adoptions/${userId}/${fakePetId}`)
+      .send();
+
+    expect(res.status).to.equal(404);
+    expect(res.body.message).to.equal('Mascota no encontrada');
+  });
+
+  it('Retorna 400 si la mascota ya fue adoptada', async () => {
+    // Crear mascota adoptada para test
+    const petAdopted = await petModel.create({ name: 'Pet Adopted', adopted: true, owner: userId });
+
+    const res = await request(app)
+      .post(`/api/adoptions/${userId}/${petAdopted._id}`)
+      .send();
+
+    expect(res.status).to.equal(400);
+    expect(res.body.message).to.equal('La mascota ya fue adoptada');
+
+    await petModel.findByIdAndDelete(petAdopted._id);
+  });
+
+  it('Retorna 404 si la adopción no existe al obtenerla', async () => {
+    const fakeAdoptionId = '615f1b2e8a0a5c0012345678';
+    const res = await request(app)
+      .get(`/api/adoptions/${fakeAdoptionId}`);
+
+    expect(res.status).to.equal(404);
+    expect(res.body.message).to.equal('Adopción no encontrada');
+  });
 });
