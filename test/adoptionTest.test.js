@@ -14,7 +14,7 @@ describe('Tests de endpoints adopciones', () => {
     let adoptionId;
 
     before(async () => {
-        await mongoose.connect("mongodb+srv://emitraverso:coder@cluster0.pnkqvqz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+        await mongoose.connect("mongodb+srv://emitraverso:@cluster0.pnkqvqz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
         const user = await userModel.create({ name: 'Test User', email: 'testuser@example.com', pets: [] });
         userId = user._id.toString();

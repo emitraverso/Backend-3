@@ -9,7 +9,7 @@ const PORT = 8080
 app.use(express.json())
 
 
-const URI = "mongodb+srv://emitraverso:coder@cluster0.pnkqvqz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+const URI = "mongodb+srv://emitraverso:@cluster0.pnkqvqz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 mongoose.connect(URI)
 .then(() => console.log("DB conectada"))
 .catch((e) => console.log("Error al conectar a DB:", e))
