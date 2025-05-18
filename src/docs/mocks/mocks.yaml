@@ -1,0 +1,140 @@
+paths:
+  /api/mocks/mockingpets:
+    get:
+      summary: Generar 10 mascotas falsas en memoria (sin guardar)
+      tags:
+        - Mocks
+      responses:
+        '200':
+          description: Mascotas generadas correctamente
+        '500':
+          description: Error en generación de mascotas
+
+  /api/mocks/mockingusers:
+    get:
+      summary: Generar usuarios falsos según argumento (se lee desde process.argv[2])
+      tags:
+        - Mocks
+      responses:
+        '200':
+          description: Usuarios generados correctamente
+        '500':
+          description: Error en generación de usuarios
+
+  /api/mocks/generateData:
+    post:
+      summary: Generar y guardar usuarios y mascotas en base de datos
+      tags:
+        - Usuarios y Mascotas
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: integer
+                  description: Cantidad de usuarios a generar
+                  example: 5
+                pets:
+                  type: integer
+                  description: Cantidad de mascotas a generar
+                  example: 5
+      responses:
+        '201':
+          description: Datos generados y guardados correctamente
+        '500':
+          description: Error al generar datos
+
+  /api/mocks/users:
+    get:
+      summary: Obtener todos los usuarios desde la base de datos
+      tags:
+        - Usuarios y Mascotas
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Error al obtener usuarios
+
+  /api/mocks/pets:
+    get:
+      summary: Obtener todas las mascotas desde la base de datos
+      tags:
+        - Usuarios y Mascotas
+      responses:
+        '200':
+          description: Lista de mascotas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        '500':
+          description: Error al obtener mascotas
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de Mongo
+        first_name:
+          type: string
+          description: Nombre del usuario
+        last_name:
+          type: string
+          description: Apellido del usuario
+        email:
+          type: string
+          description: Email del usuario
+        password:
+          type: string
+          description: Contraseña del usuario
+      example:
+        _id: ObjectId("68292b7b48045e16ea044d6a")
+        first_name: Maria
+        last_name: Cole
+        email: maria_cole@hotmail.com
+        password: $2b$04$897aPgfg7xMI/aqTiv3WPO8SMdNSXdEkxivem0VVMqZNFFoJhWbRG 
+
+    Pet:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de Mongo
+        name:
+          type: string
+          description: Nombre de la mascota
+        species:
+          type: string
+          description: Especie de la mascota
+        age:
+          type: integer
+          description: Edad de la mascota
+        adopted:
+          type: boolean
+          description: Estado de adopción de la mascota
+        owner:
+          type: string
+          description: Dueño de la mascota      
+      example:
+        _id: ObjectId("68292b7b48045e16ea044d6a")
+        name: Firulais
+        species: Dog
+        age: 3
+        adopted: "false"
+        owner: "null"
+
+    

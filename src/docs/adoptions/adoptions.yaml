@@ -1,0 +1,101 @@
+paths:
+  /api/adoptions:
+    get:
+      summary: Obtener todas las adopciones
+      tags:
+        - Adopciones
+      responses:
+        '200':
+          description: Lista de adopciones obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Adoption'
+        '500':
+          description: Error al obtener las adopciones
+
+  /api/adoptions/{aid}:
+    get:
+      summary: Obtener una adopción por ID
+      tags:
+        - Adopciones
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          schema:
+            type: string
+          description: ID de la adopción
+      responses:
+        '200':
+          description: Adopción encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  payload:
+                    $ref: '#/components/schemas/Adoption'
+        '500':
+          description: Error al buscar la adopción
+
+  /api/adoptions/{uid}/{pid}:
+    post:
+      summary: Crear una adopción
+      tags:
+        - Adopciones
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+          description: ID del usuario que adopta
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+          description: ID de la mascota que se desea adoptar
+      responses:
+        '201':
+          description: Mascota adoptada exitosamente
+        '400':
+          description: La mascota ya fue adoptada
+        '404':
+          description: Usuario o mascota no encontrada
+        '500':
+          description: Error al crear la adopción
+
+components:
+  schemas:
+    Adoption:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de Mongo
+        owner:
+          type: ObjectId
+          description: Id Usuario
+        pet:
+          type: ObjectId
+          description: Id Mascota
+        date:
+          type: date
+          description: Fecha de adopción
+      example:
+        _id: ObjectId("68292d4f43f9346e36d8a353")
+        owner: ObjectId("ObjectId("68292b7b48045e16ea044d6a")")
+        pet: ObjectId("68292bb20e273445e69a63e3")
+        date: 2025-05-18T00:43:59.466+00:00
+        
